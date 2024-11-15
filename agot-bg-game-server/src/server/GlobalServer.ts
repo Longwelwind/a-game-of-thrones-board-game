@@ -511,22 +511,29 @@ export default class GlobalServer {
 
             user.updateConnectionStatus();
 
-            if (this.socketIds.has(client)) {
-                const socketId = this.socketIds.get(client);
-                if (this.multiAccountingProtection.has(user.entireGame.id)) {
-                    const userConnectionInfos = this.multiAccountingProtection.get(user.entireGame.id);
-                    if (userConnectionInfos.has(socketId)) {
-                        const date = new Date();
-                        date.setHours(date.getHours() + 16);
-                        userConnectionInfos.get(socketId).invalidatesAt = date;
-                    }
+            //this.addIpToMultiAccountProtectionMap(client, user);
+        }
+    }
+
+    private addIpToMultiAccountProtectionMap(client: WebSocket, user: User): void {
+        if (this.socketIds.has(client)) {
+            const socketId = this.socketIds.get(client);
+            if (this.multiAccountingProtection.has(user.entireGame.id)) {
+                const userConnectionInfos = this.multiAccountingProtection.get(user.entireGame.id);
+                if (userConnectionInfos.has(socketId)) {
+                    const date = new Date();
+                    date.setHours(date.getHours() + 16);
+                    userConnectionInfos.get(socketId).invalidatesAt = date;
                 }
-                this.socketIds.delete(client);
             }
+            this.socketIds.delete(client);
         }
     }
 
     getOtherUsersFromSameNetworkInSameGame(entireGame: EntireGame, userData: StoredUserData, socketId: string, clientIp: string): string[] {
+        return [];
+
+        // TODO
         if (!this.multiAccountingProtection.has(entireGame.id)) {
             this.multiAccountingProtection.set(entireGame.id, new BetterMap());
         }
@@ -611,6 +618,7 @@ export default class GlobalServer {
             });
 
             // Invalidate outdated Ip entries:
+            /*
             this.multiAccountingProtection.keys.forEach(entireGameId => {
                 const userConnectionInfos = this.multiAccountingProtection.get(entireGameId);
                 userConnectionInfos.keys.forEach(socketId => {
@@ -624,6 +632,7 @@ export default class GlobalServer {
                     this.multiAccountingProtection.delete(entireGameId);
                 }
             });
+            */
         }
     }
 }
